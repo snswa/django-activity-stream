@@ -107,6 +107,9 @@ class Action(models.Model):
     
     objects = ActionManager()
     
+    class Meta:
+        ordering = ('-timestamp',)
+
     def __unicode__(self):
         if self.target:
             if self.action_object:
