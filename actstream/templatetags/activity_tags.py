@@ -3,6 +3,38 @@ from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
+from actstream.models import Action
+
+
+register = Library()
+
+
+@register.filter
+def actionsisactorof(obj):
+    ct = ContentType.objects.get_for_model(obj)
+    return Action.objects.filter(
+        actor_content_type=ct,
+        actor_object_id=obj.id,
+    )
+
+
+@register.filter
+def actionsistargetof(obj):
+    ct = ContentType.objects.get_for_model(obj)
+    return Action.objects.filter(
+        target_content_type=ct,
+        target_object_id=obj.id,
+    )
+
+
+@register.filter
+def actionsisobjectof(obj):
+    ct = ContentType.objects.get_for_model(obj)
+    return Action.objects.filter(
+        action_object_content_type=ct,
+        action_object_object_id=obj.id,
+    )
+
 
 class DisplayActionLabel(Node):
     def __init__(self, actor, varname=None):
@@ -135,7 +167,6 @@ class UserContentTypeNode(Node):
         context[self.args[-1]] = ContentType.objects.get_for_model(User)
         return ''
 
-register = Library()     
 register.tag('display_action', do_print_action)
 register.tag('display_action_short', do_print_action_short)
 register.tag('display_grouped_actions', do_print_grouped_actions)
